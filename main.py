@@ -7,19 +7,19 @@ baseUrl = "https://www.luogu.com.cn/problem/"
 savePath = "D:\\programming documents\\python\\programs\\DownloadLuoguProblems\\problems\\"
 
 def main():
-    #print("即将开始爬取")
-    #print("准备爬取主题库")
-    #mainProblems()
-    #print("主题库爬取完毕")
-    #print("准备爬取入门题库")
-    #BasicProblems()
-    #print("入门题库爬取完毕")
-    #print("准备爬取CF题库")
-    #CFProblems()
-    #print("CF题库爬取完毕")
-    #print("准备爬取SPOJ题库")
-    #SPOJProblems()
-    #print("SPOJ题库爬取完毕")
+    print("即将开始爬取")
+    print("准备爬取主题库")
+    mainProblems()
+    print("主题库爬取完毕")
+    print("准备爬取入门题库")
+    BasicProblems()
+    print("入门题库爬取完毕")
+    print("准备爬取CF题库")
+    CFProblems()
+    print("CF题库爬取完毕")
+    print("准备爬取SPOJ题库")
+    SPOJProblems()
+    print("SPOJ题库爬取完毕")
     print("准备爬取UVA题库")
     UVAProblems()
     print("UVA题库爬取完毕")
@@ -28,6 +28,8 @@ def UVAProblems():
     minn = 100
     maxn = 13292
     for i in range(minn,maxn+1):
+        if os.path.exists("D:\\programming documents\\python\\programs\\DownloadLuoguProblems\\problems\\UVA"+str(i)+".md"):
+            continue
         print("正在爬取UVA{}...".format(i),end="")
         html = getHTML(baseUrl +'UVA'+str(i))
         if html == "error":
@@ -42,6 +44,8 @@ def SPOJProblems():
     minn = 1
     maxn = 34127
     for i in range(minn,maxn+1):
+        if os.path.exists("D:\\programming documents\\python\\programs\\DownloadLuoguProblems\\problems\\SP"+str(i)+".md"):
+            continue
         print("正在爬取SP{}...".format(i),end="")
         html = getHTML(baseUrl +'SP'+str(i))
         if html == "error":
@@ -57,6 +61,8 @@ def CFProblems():
     maxn = 1754
     for i in range(minn,maxn+1):
         for j in "ABCDEFGHIJKL":
+            if os.path.exists("D:\\programming documents\\python\\programs\\DownloadLuoguProblems\\problems\\CF"+str(i)+j+".md"):
+                continue
             print("正在爬取CF{}{}...".format(i,j),end="")
             html = getHTML(baseUrl +'CF'+str(i)+j)
             if html == "error":
@@ -71,6 +77,8 @@ def BasicProblems():
     minn = 2001
     maxn = 2148
     for i in range(minn,maxn+1):
+        if os.path.exists("D:\\programming documents\\python\\programs\\DownloadLuoguProblems\\problems\\B"+str(i)+".md"):
+            continue
         print("正在爬取B{}...".format(i),end="")
         html = getHTML(baseUrl +'B'+str(i))
         if html == "error":
@@ -84,6 +92,8 @@ def BasicProblems():
     minn = 3600
     maxn = 3675
     for i in range(minn,maxn+1):
+        if os.path.exists("D:\\programming documents\\python\\programs\\DownloadLuoguProblems\\problems\\B"+str(i)+".md"):
+            continue
         print("正在爬取B{}...".format(i),end="")
         html = getHTML(baseUrl +'B'+str(i))
         if html == "error":
@@ -99,6 +109,8 @@ def mainProblems():
     minn = 1000
     maxn = 8596
     for i in range(minn,maxn+1):
+        if os.path.exists("D:\\programming documents\\python\\programs\\DownloadLuoguProblems\\problems\\P"+str(i)+".md"):
+            continue
         print("正在爬取P{}...".format(i),end="")
         html = getHTML(baseUrl +"P"+str(i))
         if html == "error":
