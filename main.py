@@ -3,16 +3,104 @@ import re
 import urllib.request,urllib.error
 import bs4
 
-baseUrl = "https://www.luogu.com.cn/problem/P"
-minn = 1000
-maxn = 8596
+baseUrl = "https://www.luogu.com.cn/problem/"
 savePath = "D:\\programming documents\\python\\programs\\DownloadLuoguProblems\\problems\\"
 
 def main():
-    print("计划爬取到P{}".format(maxn))
+    #print("即将开始爬取")
+    #print("准备爬取主题库")
+    #mainProblems()
+    #print("主题库爬取完毕")
+    #print("准备爬取入门题库")
+    #BasicProblems()
+    #print("入门题库爬取完毕")
+    #print("准备爬取CF题库")
+    #CFProblems()
+    #print("CF题库爬取完毕")
+    #print("准备爬取SPOJ题库")
+    #SPOJProblems()
+    #print("SPOJ题库爬取完毕")
+    print("准备爬取UVA题库")
+    UVAProblems()
+    print("UVA题库爬取完毕")
+
+def UVAProblems():
+    minn = 100
+    maxn = 13292
+    for i in range(minn,maxn+1):
+        print("正在爬取UVA{}...".format(i),end="")
+        html = getHTML(baseUrl +'UVA'+str(i))
+        if html == "error":
+            print("爬取失败，可能是不存在该题或无权查看")
+        else:
+            problemMD = getMD(html)
+            print("爬取成功！正在保存...",end="")
+            saveData(problemMD,"UVA"+str(i)+".md")
+            print("保存成功！")
+
+def SPOJProblems():
+    minn = 1
+    maxn = 34127
+    for i in range(minn,maxn+1):
+        print("正在爬取SP{}...".format(i),end="")
+        html = getHTML(baseUrl +'SP'+str(i))
+        if html == "error":
+            print("爬取失败，可能是不存在该题或无权查看")
+        else:
+            problemMD = getMD(html)
+            print("爬取成功！正在保存...",end="")
+            saveData(problemMD,"SP"+str(i)+".md")
+            print("保存成功！")
+
+def CFProblems():
+    minn = 1
+    maxn = 1754
+    for i in range(minn,maxn+1):
+        for j in "ABCDEFGHIJKL":
+            print("正在爬取CF{}{}...".format(i,j),end="")
+            html = getHTML(baseUrl +'CF'+str(i)+j)
+            if html == "error":
+               print("爬取失败，可能是不存在该题或无权查看")
+            else:
+                problemMD = getMD(html)
+                print("爬取成功！正在保存...",end="")
+                saveData(problemMD,"CF"+str(i)+j+".md")
+                print("保存成功！")
+
+def BasicProblems():
+    minn = 2001
+    maxn = 2148
+    for i in range(minn,maxn+1):
+        print("正在爬取B{}...".format(i),end="")
+        html = getHTML(baseUrl +'B'+str(i))
+        if html == "error":
+            print("爬取失败，可能是不存在该题或无权查看")
+        else:
+            problemMD = getMD(html)
+            print("爬取成功！正在保存...",end="")
+            saveData(problemMD,"B"+str(i)+".md")
+            print("保存成功！")
+    
+    minn = 3600
+    maxn = 3675
+    for i in range(minn,maxn+1):
+        print("正在爬取B{}...".format(i),end="")
+        html = getHTML(baseUrl +'B'+str(i))
+        if html == "error":
+            print("爬取失败，可能是不存在该题或无权查看")
+        else:
+            problemMD = getMD(html)
+            print("爬取成功！正在保存...",end="")
+            saveData(problemMD,"B"+str(i)+".md")
+            print("保存成功！")
+
+
+def mainProblems():
+    minn = 1000
+    maxn = 8596
     for i in range(minn,maxn+1):
         print("正在爬取P{}...".format(i),end="")
-        html = getHTML(baseUrl +str(i))
+        html = getHTML(baseUrl +"P"+str(i))
         if html == "error":
             print("爬取失败，可能是不存在该题或无权查看")
         else:
@@ -20,7 +108,6 @@ def main():
             print("爬取成功！正在保存...",end="")
             saveData(problemMD,"P"+str(i)+".md")
             print("保存成功！")
-    print("爬取完毕")
 
 def getHTML(url):
     headers = {
