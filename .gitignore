@@ -1,1 +1,5 @@
+#for the list of problems that has been downloaded
 problems/
+
+#for the unable problems
+error.txt
