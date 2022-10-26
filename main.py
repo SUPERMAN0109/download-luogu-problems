@@ -24,6 +24,11 @@ def main():
     UVAProblems()
     print("UVA题库爬取完毕")
 
+def addno(s):
+    problems = open("D:\\programming documents\\python\\programs\\DownloadLuoguProblems\\error.txt","a")
+    problems.writelines(str(s)+'\n')
+    problems.close()
+
 def UVAProblems():
     minn = 100
     maxn = 13292
@@ -104,6 +109,12 @@ def BasicProblems():
             saveData(problemMD,"B"+str(i)+".md")
             print("保存成功！")
 
+def findn(s) -> bool:
+    with open("D:\\programming documents\\python\\programs\\DownloadLuoguProblems\\error.txt","r") as e:
+        for i in e:
+            if str(i) == str(s+"\n"):
+                return True
+        return False
 
 def mainProblems():
     minn = 1000
@@ -111,9 +122,12 @@ def mainProblems():
     for i in range(minn,maxn+1):
         if os.path.exists("D:\\programming documents\\python\\programs\\DownloadLuoguProblems\\problems\\P"+str(i)+".md"):
             continue
+        if findn("P"+str(i)):
+            continue
         print("正在爬取P{}...".format(i),end="")
         html = getHTML(baseUrl +"P"+str(i))
         if html == "error":
+            addno("P"+str(i))
             print("爬取失败，可能是不存在该题或无权查看")
         else:
             problemMD = getMD(html)
@@ -153,4 +167,6 @@ def saveData(data,filename):
 if __name__ == '__main__':
     if not os.path.exists(r'D:\programming documents\python\programs\DownloadLuoguProblems\problems'):
         os.mkdir(r'D:\programming documents\python\programs\DownloadLuoguProblems\problems')
+    a = open("D:\\programming documents\\python\\programs\\DownloadLuoguProblems\\error.txt","a")
+    a.close()
     main()
