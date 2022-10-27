@@ -35,9 +35,12 @@ def UVAProblems():
     for i in range(minn,maxn+1):
         if os.path.exists("D:\\programming documents\\python\\programs\\DownloadLuoguProblems\\problems\\UVA"+str(i)+".md"):
             continue
+        if findn("UVA"+str(i)):
+            continue
         print("正在爬取UVA{}...".format(i),end="")
         html = getHTML(baseUrl +'UVA'+str(i))
         if html == "error":
+            addno("UVA"+str(i))
             print("爬取失败，可能是不存在该题或无权查看")
         else:
             problemMD = getMD(html)
@@ -51,9 +54,12 @@ def SPOJProblems():
     for i in range(minn,maxn+1):
         if os.path.exists("D:\\programming documents\\python\\programs\\DownloadLuoguProblems\\problems\\SP"+str(i)+".md"):
             continue
+        if findn("SP"+str(i)):
+            continue
         print("正在爬取SP{}...".format(i),end="")
         html = getHTML(baseUrl +'SP'+str(i))
         if html == "error":
+            addno("SP"+str(i))
             print("爬取失败，可能是不存在该题或无权查看")
         else:
             problemMD = getMD(html)
@@ -68,10 +74,13 @@ def CFProblems():
         for j in "ABCDEFGHIJKL":
             if os.path.exists("D:\\programming documents\\python\\programs\\DownloadLuoguProblems\\problems\\CF"+str(i)+j+".md"):
                 continue
+            if findn('CF'+str(i)+j):
+                continue
             print("正在爬取CF{}{}...".format(i,j),end="")
             html = getHTML(baseUrl +'CF'+str(i)+j)
             if html == "error":
-               print("爬取失败，可能是不存在该题或无权查看")
+                addno('CF'+str(i)+j)
+                print("爬取失败，可能是不存在该题或无权查看")
             else:
                 problemMD = getMD(html)
                 print("爬取成功！正在保存...",end="")
@@ -84,9 +93,12 @@ def BasicProblems():
     for i in range(minn,maxn+1):
         if os.path.exists("D:\\programming documents\\python\\programs\\DownloadLuoguProblems\\problems\\B"+str(i)+".md"):
             continue
+        if findn("B"+str(i)):
+            continue
         print("正在爬取B{}...".format(i),end="")
         html = getHTML(baseUrl +'B'+str(i))
         if html == "error":
+            addno("B"+str(i))
             print("爬取失败，可能是不存在该题或无权查看")
         else:
             problemMD = getMD(html)
@@ -99,9 +111,12 @@ def BasicProblems():
     for i in range(minn,maxn+1):
         if os.path.exists("D:\\programming documents\\python\\programs\\DownloadLuoguProblems\\problems\\B"+str(i)+".md"):
             continue
+        if findn("B"+str(i)):
+            continue
         print("正在爬取B{}...".format(i),end="")
         html = getHTML(baseUrl +'B'+str(i))
         if html == "error":
+            addno("B"+str(i))
             print("爬取失败，可能是不存在该题或无权查看")
         else:
             problemMD = getMD(html)
