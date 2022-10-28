@@ -4,7 +4,10 @@ import urllib.request,urllib.error
 import bs4
 
 baseUrl = "https://www.luogu.com.cn/problem/"
-savePath = "D:\\programming documents\\python\\programs\\DownloadLuoguProblems\\problems\\"
+with open('path.txt','r') as path:
+    SavePath = path.read()
+if not os.path.exists(SavePath):
+    os.makedirs(SavePath)
 
 def main():
     print("即将开始爬取")
@@ -25,7 +28,7 @@ def main():
     print("UVA题库爬取完毕")
 
 def addno(s):
-    problems = open("D:\\programming documents\\python\\programs\\DownloadLuoguProblems\\error.txt","a")
+    problems = open("error.txt","a")
     problems.writelines(str(s)+'\n')
     problems.close()
 
@@ -33,7 +36,7 @@ def UVAProblems():
     minn = 100
     maxn = 13292
     for i in range(minn,maxn+1):
-        if os.path.exists("D:\\programming documents\\python\\programs\\DownloadLuoguProblems\\problems\\UVA"+str(i)+".md"):
+        if os.path.exists(SavePath + r"\problems\UVA"+str(i)+".md"):
             continue
         if findn("UVA"+str(i)):
             continue
@@ -52,7 +55,7 @@ def SPOJProblems():
     minn = 1
     maxn = 34127
     for i in range(minn,maxn+1):
-        if os.path.exists("D:\\programming documents\\python\\programs\\DownloadLuoguProblems\\problems\\SP"+str(i)+".md"):
+        if os.path.exists(SavePath + r"\problems\SP"+str(i)+".md"):
             continue
         if findn("SP"+str(i)):
             continue
@@ -72,7 +75,7 @@ def CFProblems():
     maxn = 1754
     for i in range(minn,maxn+1):
         for j in "ABCDEFGHIJKL":
-            if os.path.exists("D:\\programming documents\\python\\programs\\DownloadLuoguProblems\\problems\\CF"+str(i)+j+".md"):
+            if os.path.exists(SavePath + r"\problems\CF"+str(i)+j+".md"):
                 continue
             if findn('CF'+str(i)+j):
                 continue
@@ -91,7 +94,7 @@ def BasicProblems():
     minn = 2001
     maxn = 2148
     for i in range(minn,maxn+1):
-        if os.path.exists("D:\\programming documents\\python\\programs\\DownloadLuoguProblems\\problems\\B"+str(i)+".md"):
+        if os.path.exists(SavePath + r"\problems\B"+str(i)+".md"):
             continue
         if findn("B"+str(i)):
             continue
@@ -109,7 +112,7 @@ def BasicProblems():
     minn = 3600
     maxn = 3675
     for i in range(minn,maxn+1):
-        if os.path.exists("D:\\programming documents\\python\\programs\\DownloadLuoguProblems\\problems\\B"+str(i)+".md"):
+        if os.path.exists(SavePath + r"\problems\B"+str(i)+".md"):
             continue
         if findn("B"+str(i)):
             continue
@@ -125,7 +128,7 @@ def BasicProblems():
             print("保存成功！")
 
 def findn(s) -> bool:
-    with open("D:\\programming documents\\python\\programs\\DownloadLuoguProblems\\error.txt","r") as e:
+    with open("error.txt","r") as e:
         for i in e:
             if str(i) == str(s+"\n"):
                 return True
@@ -135,7 +138,7 @@ def mainProblems():
     minn = 1000
     maxn = 8596
     for i in range(minn,maxn+1):
-        if os.path.exists("D:\\programming documents\\python\\programs\\DownloadLuoguProblems\\problems\\P"+str(i)+".md"):
+        if os.path.exists(SavePath + r"\problems\P"+str(i)+".md"):
             continue
         if findn("P"+str(i)):
             continue
@@ -173,15 +176,15 @@ def getMD(html):
     return md
 
 def saveData(data,filename):
-    cfilename = savePath + filename
+    cfilename = SavePath + "\\problems\\" + filename
     file = open(cfilename,"w",encoding="utf-8")
     for d in data:
         file.writelines(d)
     file.close()
 
 if __name__ == '__main__':
-    if not os.path.exists(r'D:\programming documents\python\programs\DownloadLuoguProblems\problems'):
-        os.mkdir(r'D:\programming documents\python\programs\DownloadLuoguProblems\problems')
-    a = open("D:\\programming documents\\python\\programs\\DownloadLuoguProblems\\error.txt","a")
+    if not os.path.exists(SavePath+r'\problems'):
+        os.mkdir(SavePath+r'\problems')
+    a = open("error.txt","a")
     a.close()
     main()
