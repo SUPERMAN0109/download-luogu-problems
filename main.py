@@ -12,19 +12,24 @@ if not os.path.exists(SavePath):
 def main():
     print("即将开始爬取")
     print("准备爬取主题库")
-    mainProblems()
+    if not mainProblems():
+        return
     print("主题库爬取完毕")
     print("准备爬取入门题库")
-    BasicProblems()
+    if not BasicProblems():
+        return
     print("入门题库爬取完毕")
     print("准备爬取CF题库")
-    CFProblems()
+    if not CFProblems():
+        return
     print("CF题库爬取完毕")
     print("准备爬取SPOJ题库")
-    SPOJProblems()
+    if not SPOJProblems():
+        return
     print("SPOJ题库爬取完毕")
     print("准备爬取UVA题库")
-    UVAProblems()
+    if not UVAProblems():
+        return
     print("UVA题库爬取完毕")
 
 def addno(s):
@@ -32,7 +37,7 @@ def addno(s):
     problems.writelines(str(s)+'\n')
     problems.close()
 
-def UVAProblems():
+def UVAProblems() -> bool:
     minn = 100
     maxn = 13292
     for i in range(minn,maxn+1):
@@ -42,6 +47,8 @@ def UVAProblems():
             continue
         print("正在爬取UVA{}...".format(i),end="")
         html = getHTML(baseUrl +'UVA'+str(i))
+        if html == "internet":
+            return False
         if html == "error":
             addno("UVA"+str(i))
             print("爬取失败，可能是不存在该题或无权查看")
@@ -50,8 +57,9 @@ def UVAProblems():
             print("爬取成功！正在保存...",end="")
             saveData(problemMD,"UVA"+str(i)+".md")
             print("保存成功！")
+    return False
 
-def SPOJProblems():
+def SPOJProblems() -> bool:
     minn = 1
     maxn = 34127
     for i in range(minn,maxn+1):
@@ -61,6 +69,8 @@ def SPOJProblems():
             continue
         print("正在爬取SP{}...".format(i),end="")
         html = getHTML(baseUrl +'SP'+str(i))
+        if html == "internet":
+            return False
         if html == "error":
             addno("SP"+str(i))
             print("爬取失败，可能是不存在该题或无权查看")
@@ -69,8 +79,9 @@ def SPOJProblems():
             print("爬取成功！正在保存...",end="")
             saveData(problemMD,"SP"+str(i)+".md")
             print("保存成功！")
+    return True
 
-def CFProblems():
+def CFProblems()->bool:
     minn = 1
     maxn = 1754
     for i in range(minn,maxn+1):
@@ -81,6 +92,8 @@ def CFProblems():
                 continue
             print("正在爬取CF{}{}...".format(i,j),end="")
             html = getHTML(baseUrl +'CF'+str(i)+j)
+            if html == "internet":
+                return False
             if html == "error":
                 addno('CF'+str(i)+j)
                 print("爬取失败，可能是不存在该题或无权查看")
@@ -89,8 +102,9 @@ def CFProblems():
                 print("爬取成功！正在保存...",end="")
                 saveData(problemMD,"CF"+str(i)+j+".md")
                 print("保存成功！")
+    return True
 
-def BasicProblems():
+def BasicProblems() -> bool:
     minn = 2001
     maxn = 2148
     for i in range(minn,maxn+1):
@@ -100,6 +114,8 @@ def BasicProblems():
             continue
         print("正在爬取B{}...".format(i),end="")
         html = getHTML(baseUrl +'B'+str(i))
+        if html == "internet":
+            return False
         if html == "error":
             addno("B"+str(i))
             print("爬取失败，可能是不存在该题或无权查看")
@@ -118,6 +134,8 @@ def BasicProblems():
             continue
         print("正在爬取B{}...".format(i),end="")
         html = getHTML(baseUrl +'B'+str(i))
+        if html == "internet":
+            return False
         if html == "error":
             addno("B"+str(i))
             print("爬取失败，可能是不存在该题或无权查看")
@@ -126,6 +144,7 @@ def BasicProblems():
             print("爬取成功！正在保存...",end="")
             saveData(problemMD,"B"+str(i)+".md")
             print("保存成功！")
+    return True
 
 def findn(s) -> bool:
     with open("error.txt","r") as e:
@@ -134,7 +153,7 @@ def findn(s) -> bool:
                 return True
         return False
 
-def mainProblems():
+def mainProblems() -> bool:
     minn = 1000
     maxn = 8596
     for i in range(minn,maxn+1):
@@ -144,6 +163,8 @@ def mainProblems():
             continue
         print("正在爬取P{}...".format(i),end="")
         html = getHTML(baseUrl +"P"+str(i))
+        if html == "internet":
+            return False
         if html == "error":
             addno("P"+str(i))
             print("爬取失败，可能是不存在该题或无权查看")
@@ -152,13 +173,18 @@ def mainProblems():
             print("爬取成功！正在保存...",end="")
             saveData(problemMD,"P"+str(i)+".md")
             print("保存成功！")
+    return True
 
 def getHTML(url):
     headers = {
         "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/106.0.0.0 Safari/537.36"
     }
     request = urllib.request.Request(url = url,headers = headers)
-    response = urllib.request.urlopen(request)
+    try:
+        response = urllib.request.urlopen(request)
+    except urllib.error.URLError as e:
+        print('当前网络不稳定，请稍后再试')
+        return "internet"
     html = response.read().decode('utf-8')
     if str(html).find("Exception") == -1:
         return html
