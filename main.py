@@ -3,6 +3,11 @@ import re
 import urllib.request
 import urllib.error
 import bs4
+import selenium.common.exceptions
+from selenium import webdriver
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support import expected_conditions as EC
+from selenium.webdriver.common.by import By
 
 baseUrl = "https://www.luogu.com.cn/problem/"
 with open('path.txt', 'r') as path:
@@ -29,6 +34,10 @@ def main():
     if not SPOJProblems():
         return
     print("SPOJ题库爬取完毕")
+    print("准备爬取AtCoder题库")
+    if not ATProblems():
+        return
+    print("Atcoder题库爬取完毕")
     print("准备爬取UVA题库")
     if not UVAProblems():
         return
@@ -41,147 +50,266 @@ def addno(s):
     problems.close()
 
 
-def UVAProblems() -> bool:
-    minn = 100
-    maxn = 13292
-    for i in range(minn, maxn + 1):
-        if os.path.exists(SavePath + r"\problems\UVA" + str(i) + ".md"):
+def ATProblems() -> bool:
+    browser = webdriver.Chrome()
+    url = r"https://www.luogu.com.cn/problem/list?type=AT&page="
+    try:
+        browser.get(url + "1")
+    except selenium.common.exceptions.WebDriverException:
+        print("网络不稳定，请稍后再试")
+        browser.quit()
+        return False
+    WebDriverWait(browser, 1000).until(
+        EC.presence_of_all_elements_located(
+            (By.XPATH, r"/html/body/div/div[2]/main/div/div/div/div[2]/div/div/span/strong"))
+    )
+    pages = int(
+        browser.find_element(By.XPATH, r'/html/body/div/div[2]/main/div/div/div/div[2]/div/div/span/strong').text)
+    for i in range(1, pages + 1):
+        if findn('AT', i):
             continue
-        if findn("UVA" + str(i)):
-            continue
-        print("正在爬取UVA{}...".format(i), end="")
-        html = getHTML(baseUrl + 'UVA' + str(i))
-        if html == "internet":
+        try:
+            browser.get(url + str(i))
+        except selenium.common.exceptions.WebDriverException:
+            print("网络不稳定，请稍后再试")
+            browser.quit()
             return False
-        if html == "error":
-            addno("UVA" + str(i))
-            print("爬取失败，可能是不存在该题或无权查看")
-        else:
-            problemMD = getMD(html)
-            print("爬取成功！正在保存...", end="")
-            saveData(problemMD, "UVA" + str(i) + ".md")
-            print("保存成功！")
-    return False
+        WebDriverWait(browser, 1000).until(
+            EC.presence_of_all_elements_located(
+                (By.XPATH, r"/html/body/div/div[2]/main/div/div/div/div[2]/div/div/span/strong"))
+        )
+        divs = browser.find_elements(By.XPATH, '/html/body/div/div[2]/main/div/div/div/div[1]/div[2]/div')
+        for div in divs:
+            numb = div.find_element(By.XPATH, 'span[2]').text
+            if not problem(str(numb)):
+                browser.quit()
+                return False
+        with open(SavePath + r"\.done\AT.txt", "a") as e:
+            e.write(str(i) + '\n')
+    browser.quit()
+    return True
+
+
+def UVAProblems() -> bool:
+    browser = webdriver.Chrome()
+    url = r"https://www.luogu.com.cn/problem/list?type=UVA&page="
+    try:
+        browser.get(url + "1")
+    except selenium.common.exceptions.WebDriverException:
+        print("网络不稳定，请稍后再试")
+        browser.quit()
+        return False
+    WebDriverWait(browser, 1000).until(
+        EC.presence_of_all_elements_located(
+            (By.XPATH, r"/html/body/div/div[2]/main/div/div/div/div[2]/div/div/span/strong"))
+    )
+    pages = int(
+        browser.find_element(By.XPATH, r'/html/body/div/div[2]/main/div/div/div/div[2]/div/div/span/strong').text)
+    for i in range(1, pages + 1):
+        if findn('UVA', i):
+            continue
+        try:
+            browser.get(url + str(i))
+        except selenium.common.exceptions.WebDriverException:
+            print("网络不稳定，请稍后再试")
+            browser.quit()
+            return False
+        WebDriverWait(browser, 1000).until(
+            EC.presence_of_all_elements_located(
+                (By.XPATH, r"/html/body/div/div[2]/main/div/div/div/div[2]/div/div/span/strong"))
+        )
+        divs = browser.find_elements(By.XPATH, '/html/body/div/div[2]/main/div/div/div/div[1]/div[2]/div')
+        for div in divs:
+            numb = div.find_element(By.XPATH, 'span[2]').text
+            if not problem(str(numb)):
+                browser.quit()
+                return False
+        with open(SavePath + r"\.done\UVA.txt", "a") as e:
+            e.write(str(i) + '\n')
+    browser.quit()
+    return True
 
 
 def SPOJProblems() -> bool:
-    minn = 1
-    maxn = 34127
-    for i in range(minn, maxn + 1):
-        if os.path.exists(SavePath + r"\problems\SP" + str(i) + ".md"):
+    browser = webdriver.Chrome()
+    url = r"https://www.luogu.com.cn/problem/list?type=SP&page="
+    try:
+        browser.get(url + "1")
+    except selenium.common.exceptions.WebDriverException:
+        print("网络不稳定，请稍后再试")
+        browser.quit()
+        return False
+    WebDriverWait(browser, 1000).until(
+        EC.presence_of_all_elements_located(
+            (By.XPATH, r"/html/body/div/div[2]/main/div/div/div/div[2]/div/div/span/strong"))
+    )
+    pages = int(
+        browser.find_element(By.XPATH, r'/html/body/div/div[2]/main/div/div/div/div[2]/div/div/span/strong').text)
+    for i in range(1, pages + 1):
+        if findn('SP', i):
             continue
-        if findn("SP" + str(i)):
-            continue
-        print("正在爬取SP{}...".format(i), end="")
-        html = getHTML(baseUrl + 'SP' + str(i))
-        if html == "internet":
+        try:
+            browser.get(url + str(i))
+        except selenium.common.exceptions.WebDriverException:
+            print("网络不稳定，请稍后再试")
+            browser.quit()
             return False
-        if html == "error":
-            addno("SP" + str(i))
-            print("爬取失败，可能是不存在该题或无权查看")
-        else:
-            problemMD = getMD(html)
-            print("爬取成功！正在保存...", end="")
-            saveData(problemMD, "SP" + str(i) + ".md")
-            print("保存成功！")
+        WebDriverWait(browser, 1000).until(
+            EC.presence_of_all_elements_located(
+                (By.XPATH, r"/html/body/div/div[2]/main/div/div/div/div[2]/div/div/span/strong"))
+        )
+        divs = browser.find_elements(By.XPATH, '/html/body/div/div[2]/main/div/div/div/div[1]/div[2]/div')
+        for div in divs:
+            numb = div.find_element(By.XPATH, 'span[2]').text
+            if not problem(str(numb)):
+                browser.quit()
+                return False
+        with open(SavePath + r"\.done\SP.txt", "a") as e:
+            e.write(str(i) + '\n')
+    browser.quit()
     return True
 
 
 def CFProblems() -> bool:
-    minn = 1
-    maxn = 1754
-    for i in range(minn, maxn + 1):
-        for j in "ABCDEFGHIJKL":
-            if os.path.exists(SavePath + r"\problems\CF" + str(i) + j + ".md"):
-                continue
-            if findn('CF' + str(i) + j):
-                continue
-            print("正在爬取CF{}{}...".format(i, j), end="")
-            html = getHTML(baseUrl + 'CF' + str(i) + j)
-            if html == "internet":
+    browser = webdriver.Chrome()
+    url = r"https://www.luogu.com.cn/problem/list?type=CF&page="
+    try:
+        browser.get(url + "1")
+    except selenium.common.exceptions.WebDriverException:
+        print("网络不稳定，请稍后再试")
+        browser.quit()
+        return False
+    WebDriverWait(browser, 1000).until(
+        EC.presence_of_all_elements_located(
+            (By.XPATH, r"/html/body/div/div[2]/main/div/div/div/div[2]/div/div/span/strong"))
+    )
+    pages = int(
+        browser.find_element(By.XPATH, r'/html/body/div/div[2]/main/div/div/div/div[2]/div/div/span/strong').text)
+    for i in range(1, pages + 1):
+        if findn('CF', i):
+            continue
+        try:
+            browser.get(url + str(i))
+        except selenium.common.exceptions.WebDriverException:
+            print("网络不稳定，请稍后再试")
+            browser.quit()
+            return False
+        WebDriverWait(browser, 1000).until(
+            EC.presence_of_all_elements_located(
+                (By.XPATH, r"/html/body/div/div[2]/main/div/div/div/div[2]/div/div/span/strong"))
+        )
+        divs = browser.find_elements(By.XPATH, '/html/body/div/div[2]/main/div/div/div/div[1]/div[2]/div')
+        for div in divs:
+            numb = div.find_element(By.XPATH, 'span[2]').text
+            if not problem(str(numb)):
+                browser.quit()
                 return False
-            if html == "error":
-                addno('CF' + str(i) + j)
-                print("爬取失败，可能是不存在该题或无权查看")
-            else:
-                problemMD = getMD(html)
-                print("爬取成功！正在保存...", end="")
-                saveData(problemMD, "CF" + str(i) + j + ".md")
-                print("保存成功！")
+        with open(SavePath + r"\.done\CF.txt", "a") as e:
+            e.write(str(i) + '\n')
+    browser.quit()
     return True
 
 
 def BasicProblems() -> bool:
-    minn = 2001
-    maxn = 2148
-    for i in range(minn, maxn + 1):
-        if os.path.exists(SavePath + r"\problems\B" + str(i) + ".md"):
+    browser = webdriver.Chrome()
+    url = r"https://www.luogu.com.cn/problem/list?type=B&page="
+    try:
+        browser.get(url + "1")
+    except selenium.common.exceptions.WebDriverException:
+        print("网络不稳定，请稍后再试")
+        browser.quit()
+        return False
+    WebDriverWait(browser, 1000).until(
+        EC.presence_of_all_elements_located(
+            (By.XPATH, r"/html/body/div/div[2]/main/div/div/div/div[2]/div/div/span/strong"))
+    )
+    pages = int(
+        browser.find_element(By.XPATH, r'/html/body/div/div[2]/main/div/div/div/div[2]/div/div/span/strong').text)
+    for i in range(1, pages + 1):
+        if findn('B', i):
             continue
-        if findn("B" + str(i)):
-            continue
-        print("正在爬取B{}...".format(i), end="")
-        html = getHTML(baseUrl + 'B' + str(i))
-        if html == "internet":
+        try:
+            browser.get(url + str(i))
+        except selenium.common.exceptions.WebDriverException:
+            print("网络不稳定，请稍后再试")
+            browser.quit()
             return False
-        if html == "error":
-            addno("B" + str(i))
-            print("爬取失败，可能是不存在该题或无权查看")
-        else:
-            problemMD = getMD(html)
-            print("爬取成功！正在保存...", end="")
-            saveData(problemMD, "B" + str(i) + ".md")
-            print("保存成功！")
-
-    minn = 3600
-    maxn = 3675
-    for i in range(minn, maxn + 1):
-        if os.path.exists(SavePath + r"\problems\B" + str(i) + ".md"):
-            continue
-        if findn("B" + str(i)):
-            continue
-        print("正在爬取B{}...".format(i), end="")
-        html = getHTML(baseUrl + 'B' + str(i))
-        if html == "internet":
-            return False
-        if html == "error":
-            addno("B" + str(i))
-            print("爬取失败，可能是不存在该题或无权查看")
-        else:
-            problemMD = getMD(html)
-            print("爬取成功！正在保存...", end="")
-            saveData(problemMD, "B" + str(i) + ".md")
-            print("保存成功！")
+        WebDriverWait(browser, 1000).until(
+            EC.presence_of_all_elements_located(
+                (By.XPATH, r"/html/body/div/div[2]/main/div/div/div/div[2]/div/div/span/strong"))
+        )
+        divs = browser.find_elements(By.XPATH, '/html/body/div/div[2]/main/div/div/div/div[1]/div[2]/div')
+        for div in divs:
+            numb = div.find_element(By.XPATH, 'span[2]').text
+            if not problem(str(numb)):
+                browser.quit()
+                return False
+        with open(SavePath + r"\.done\B.txt", "a") as e:
+            e.write(str(i) + '\n')
+    browser.quit()
     return True
 
 
-def findn(s) -> bool:
-    with open("error.txt", "r") as e:
+def findn(n, s) -> bool:
+    with open(SavePath + "\\.done\\" + n + '.txt', "r") as e:
         for i in e:
-            if str(i) == str(s + "\n"):
+            if str(i) == str(s)+'\n':
                 return True
         return False
 
 
+def problem(s) -> bool:
+    if os.path.exists(SavePath + "\\problems\\" + s + '.md'):
+        return True
+    print("正在爬取{}...".format(s), end="")
+    html = getHTML(baseUrl + s)
+    if html == "internet":
+        return False
+    if html == "error":
+        print("爬取失败，可能是无权查看")
+        return True
+    problemMD = getMD(html)
+    print("爬取成功！正在保存...", end="")
+    saveData(problemMD, s + ".md")
+    print("保存成功！")
+    return True
+
+
 def mainProblems() -> bool:
-    minn = 1000
-    maxn = 8596
-    for i in range(minn, maxn + 1):
-        if os.path.exists(SavePath + r"\problems\P" + str(i) + ".md"):
+    browser = webdriver.Chrome()
+    url = r"https://www.luogu.com.cn/problem/list?type=P&page="
+    try:
+        browser.get(url+"1")
+    except selenium.common.exceptions.WebDriverException:
+        print("网络不稳定，请稍后再试")
+        browser.quit()
+        return False
+    WebDriverWait(browser, 1000).until(
+        EC.presence_of_all_elements_located((By.XPATH, r"/html/body/div/div[2]/main/div/div/div/div[2]/div/div/span/strong"))
+    )
+    pages = int(browser.find_element(By.XPATH, r'/html/body/div/div[2]/main/div/div/div/div[2]/div/div/span/strong').text)
+    for i in range(1, pages+1):
+        if findn('P', i):
             continue
-        if findn("P" + str(i)):
-            continue
-        print("正在爬取P{}...".format(i), end="")
-        html = getHTML(baseUrl + "P" + str(i))
-        if html == "internet":
+        try:
+            browser.get(url+str(i))
+        except selenium.common.exceptions.WebDriverException:
+            print("网络不稳定，请稍后再试")
+            browser.quit()
             return False
-        if html == "error":
-            addno("P" + str(i))
-            print("爬取失败，可能是不存在该题或无权查看")
-        else:
-            problemMD = getMD(html)
-            print("爬取成功！正在保存...", end="")
-            saveData(problemMD, "P" + str(i) + ".md")
-            print("保存成功！")
+        WebDriverWait(browser, 1000).until(
+            EC.presence_of_all_elements_located(
+                (By.XPATH, r"/html/body/div/div[2]/main/div/div/div/div[2]/div/div/span/strong"))
+        )
+        divs = browser.find_elements(By.XPATH, '/html/body/div/div[2]/main/div/div/div/div[1]/div[2]/div')
+        for div in divs:
+            numb = div.find_element(By.XPATH, 'span[2]').text
+            if not problem(str(numb)):
+                browser.quit()
+                return False
+        with open(SavePath + r"\.done\P.txt", "a") as e:
+            e.write(str(i)+'\n')
+    browser.quit()
     return True
 
 
@@ -224,6 +352,24 @@ def saveData(data, filename):
 if __name__ == '__main__':
     if not os.path.exists(SavePath + r'\problems'):
         os.mkdir(SavePath + r'\problems')
-    a = open("error.txt", "a")
-    a.close()
+    if not os.path.exists(SavePath + r'\.done'):
+        os.mkdir(SavePath + r'\.done')
+    if not os.path.exists(SavePath + r'\.done\P.txt'):
+        a = open(SavePath + r"\.done\P.txt", "a")
+        a.close()
+    if not os.path.exists(SavePath + r'\.done\B.txt'):
+        a = open(SavePath + r"\.done\B.txt", "a")
+        a.close()
+    if not os.path.exists(SavePath + r'\.done\CF.txt'):
+        a = open(SavePath + r"\.done\CF.txt", "a")
+        a.close()
+    if not os.path.exists(SavePath + r'\.done\SP.txt'):
+        a = open(SavePath + r"\.done\SP.txt", "a")
+        a.close()
+    if not os.path.exists(SavePath + r'\.done\AT.txt'):
+        a = open(SavePath + r"\.done\AT.txt", "a")
+        a.close()
+    if not os.path.exists(SavePath + r'\.done\UVA.txt'):
+        a = open(SavePath + r"\.done\UVA.txt", "a")
+        a.close()
     main()
