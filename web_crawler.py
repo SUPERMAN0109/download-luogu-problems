@@ -58,9 +58,11 @@ def ATProblems() -> bool:
     )
     pages = int(
         browser.find_element(By.XPATH, r'/html/body/div/div[2]/main/div/div/div/div[2]/div/div/span/strong').text)
+    print("一共要爬取{}页".format(pages))
     for i in range(1, pages + 1):
         if transform.findn('AT', i):
             continue
+        print("正在爬取第{}页".format(i))
         try:
             browser.get(url + str(i))
         except selenium.common.exceptions.WebDriverException:
@@ -77,8 +79,9 @@ def ATProblems() -> bool:
             if not problem(str(numb)):
                 browser.quit()
                 return False
-        with open(r"\.done\AT.txt", "a") as e:
+        with open(r".\.done\AT.txt", "a") as e:
             e.write(str(i) + '\n')
+        print("第{}页爬取完毕".format(i))
     browser.quit()
     return True
 
@@ -97,9 +100,11 @@ def UVAProblems() -> bool:
     )
     pages = int(
         browser.find_element(By.XPATH, r'/html/body/div/div[2]/main/div/div/div/div[2]/div/div/span/strong').text)
+    print("一共要爬取{}页".format(pages))
     for i in range(1, pages + 1):
         if transform.findn('UVA', i):
             continue
+        print("正在爬取第{}页".format(i))
         try:
             browser.get(url + str(i))
         except selenium.common.exceptions.WebDriverException:
@@ -116,8 +121,9 @@ def UVAProblems() -> bool:
             if not problem(str(numb)):
                 browser.quit()
                 return False
-        with open(r"\.done\UVA.txt", "a") as e:
+        with open(r".\.done\UVA.txt", "a") as e:
             e.write(str(i) + '\n')
+        print("第{}页爬取完毕".format(i))
     browser.quit()
     return True
 
@@ -137,9 +143,11 @@ def SPOJProblems() -> bool:
     )
     pages = int(
         browser.find_element(By.XPATH, r'/html/body/div/div[2]/main/div/div/div/div[2]/div/div/span/strong').text)
+    print("一共要爬取{}页".format(pages))
     for i in range(1, pages + 1):
         if transform.findn('SP', i):
             continue
+        print("正在爬取第{}页".format(i))
         try:
             browser.get(url + str(i))
         except selenium.common.exceptions.WebDriverException:
@@ -156,8 +164,9 @@ def SPOJProblems() -> bool:
             if not problem(str(numb)):
                 browser.quit()
                 return False
-        with open(r"\.done\SP.txt", "a") as e:
+        with open(r".\.done\SP.txt", "a") as e:
             e.write(str(i) + '\n')
+        print("第{}页爬取完毕".format(i))
     browser.quit()
     return True
 
@@ -177,9 +186,11 @@ def CFProblems() -> bool:
     )
     pages = int(
         browser.find_element(By.XPATH, r'/html/body/div/div[2]/main/div/div/div/div[2]/div/div/span/strong').text)
+    print("一共要爬取{}页".format(pages))
     for i in range(1, pages + 1):
         if transform.findn('CF', i):
             continue
+        print("正在爬取第{}页".format(i))
         try:
             browser.get(url + str(i))
         except selenium.common.exceptions.WebDriverException:
@@ -196,8 +207,9 @@ def CFProblems() -> bool:
             if not problem(str(numb)):
                 browser.quit()
                 return False
-        with open(r"\.done\CF.txt", "a") as e:
+        with open(r".\.done\CF.txt", "a") as e:
             e.write(str(i) + '\n')
+        print("第{}页爬取完毕".format(i))
     browser.quit()
     return True
 
@@ -217,9 +229,11 @@ def BasicProblems() -> bool:
     )
     pages = int(
         browser.find_element(By.XPATH, r'/html/body/div/div[2]/main/div/div/div/div[2]/div/div/span/strong').text)
+    print("一共要爬取{}页".format(pages))
     for i in range(1, pages + 1):
         if transform.findn('B', i):
             continue
+        print("正在爬取第{}页".format(i))
         try:
             browser.get(url + str(i))
         except selenium.common.exceptions.WebDriverException:
@@ -236,8 +250,9 @@ def BasicProblems() -> bool:
             if not problem(str(numb)):
                 browser.quit()
                 return False
-        with open(r"\.done\B.txt", "a") as e:
+        with open(r".\.done\B.txt", "a") as e:
             e.write(str(i) + '\n')
+        print("第{}页爬取完毕".format(i))
     browser.quit()
     return True
 
@@ -255,9 +270,11 @@ def mainProblems() -> bool:
         EC.presence_of_all_elements_located((By.XPATH, r"/html/body/div/div[2]/main/div/div/div/div[2]/div/div/span/strong"))
     )
     pages = int(browser.find_element(By.XPATH, r'/html/body/div/div[2]/main/div/div/div/div[2]/div/div/span/strong').text)
+    print("一共要爬取{}页".format(pages))
     for i in range(1, pages+1):
         if transform.findn('P', i):
             continue
+        print("正在爬取第{}页".format(i))
         try:
             browser.get(url+str(i))
         except selenium.common.exceptions.WebDriverException:
@@ -274,7 +291,8 @@ def mainProblems() -> bool:
             if not problem(str(numb)):
                 browser.quit()
                 return False
-        with open(r"\.done\P.txt", "a") as e:
+        with open(r".\.done\P.txt", "a") as e:
             e.write(str(i)+'\n')
+        print("第{}页爬取完毕".format(i))
     browser.quit()
     return True
