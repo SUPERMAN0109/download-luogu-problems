@@ -1,8 +1,14 @@
 #for the list of problems that has been downloaded
 problems/
 
-#for the unable problems
-error.txt
+#for the pycharm idea
+.idea/
+
+#for done pages
+.done/
 
 #for saving path
 path.txt
+
+#for python cache
+__pycache__/
