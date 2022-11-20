@@ -1,3 +1,6 @@
+#!/usr/bin/env python3
+# -*- coding:utf-8 -*-
+
 import transform
 import os
 import urllib.request
@@ -20,7 +23,7 @@ def getHTML(url):
         print('当前网络不稳定，请稍后再试')
         return "internet"
     html = response.read().decode('utf-8')
-    if str(html).find("Exception") == -1:
+    if str(html).find("HttpException") == -1:
         return html
     else:
         return "error"
@@ -28,7 +31,7 @@ def getHTML(url):
 
 def problem(s) -> bool:
     baseUrl = "https://www.luogu.com.cn/problem/"
-    if os.path.exists("\\problems\\" + s + '.md'):
+    if os.path.exists(".\\problems\\" + s + '.md'):
         return True
     print("正在爬取{}...".format(s), end="")
     html = getHTML(baseUrl + s)
@@ -42,6 +45,7 @@ def problem(s) -> bool:
     transform.saveData(problemMD, s + ".md")
     print("保存成功！")
     return True
+
 
 def ATProblems() -> bool:
     browser = webdriver.Chrome()
@@ -60,6 +64,7 @@ def ATProblems() -> bool:
         browser.find_element(By.XPATH, r'/html/body/div/div[2]/main/div/div/div/div[2]/div/div/span/strong').text)
     print("一共要爬取{}页".format(pages))
     for i in range(1, pages + 1):
+        data_list = []
         if transform.findn('AT', i):
             continue
         print("正在爬取第{}页".format(i))
@@ -76,14 +81,32 @@ def ATProblems() -> bool:
         divs = browser.find_elements(By.XPATH, '/html/body/div/div[2]/main/div/div/div/div[1]/div[2]/div')
         for div in divs:
             numb = div.find_element(By.XPATH, 'span[2]').text
+            title = div.find_element(By.XPATH, 'div[1]/a').text
+            temp = div.find_elements(By.XPATH, 'div[2]/div/a')
+            sour = []
+            for tem in temp:
+                sour.append(tem.text)
+            sour_str = '，'.join(sour)
+            browser.find_element(By.XPATH,'/html/body/div/div[2]/main/div/div/div/div[1]/div[1]/div/div[4]/span/a').click()
+            temp = div.find_elements(By.XPATH, 'div[2]/div/a')
+            algo = []
+            for tem in temp:
+                algo.append(tem.text)
+            algo_str = '，'.join(algo)
+            browser.find_element(By.XPATH,'/html/body/div/div[2]/main/div/div/div/div[1]/div[1]/div/div[4]/span/a').click()
+            difficulty = div.find_element(By.XPATH, 'div[3]/a/span').text
+            data = [numb, title, sour_str, algo_str, difficulty]
+            data_list.append(data)
             if not problem(str(numb)):
                 browser.quit()
                 return False
+        transform.write_excel(data_list)
         with open(r".\.done\AT.txt", "a") as e:
             e.write(str(i) + '\n')
         print("第{}页爬取完毕".format(i))
     browser.quit()
     return True
+
 
 def UVAProblems() -> bool:
     browser = webdriver.Chrome()
@@ -102,6 +125,7 @@ def UVAProblems() -> bool:
         browser.find_element(By.XPATH, r'/html/body/div/div[2]/main/div/div/div/div[2]/div/div/span/strong').text)
     print("一共要爬取{}页".format(pages))
     for i in range(1, pages + 1):
+        data_list = []
         if transform.findn('UVA', i):
             continue
         print("正在爬取第{}页".format(i))
@@ -118,9 +142,26 @@ def UVAProblems() -> bool:
         divs = browser.find_elements(By.XPATH, '/html/body/div/div[2]/main/div/div/div/div[1]/div[2]/div')
         for div in divs:
             numb = div.find_element(By.XPATH, 'span[2]').text
+            title = div.find_element(By.XPATH, 'div[1]/a').text
+            temp = div.find_elements(By.XPATH, 'div[2]/div/a')
+            sour = []
+            for tem in temp:
+                sour.append(tem.text)
+            sour_str = '，'.join(sour)
+            browser.find_element(By.XPATH,'/html/body/div/div[2]/main/div/div/div/div[1]/div[1]/div/div[4]/span/a').click()
+            temp = div.find_elements(By.XPATH, 'div[2]/div/a')
+            algo = []
+            for tem in temp:
+                algo.append(tem.text)
+            algo_str = '，'.join(algo)
+            browser.find_element(By.XPATH,'/html/body/div/div[2]/main/div/div/div/div[1]/div[1]/div/div[4]/span/a').click()
+            difficulty = div.find_element(By.XPATH, 'div[3]/a/span').text
+            data = [numb, title, sour_str, algo_str, difficulty]
+            data_list.append(data)
             if not problem(str(numb)):
                 browser.quit()
                 return False
+        transform.write_excel(data_list)
         with open(r".\.done\UVA.txt", "a") as e:
             e.write(str(i) + '\n')
         print("第{}页爬取完毕".format(i))
@@ -145,6 +186,7 @@ def SPOJProblems() -> bool:
         browser.find_element(By.XPATH, r'/html/body/div/div[2]/main/div/div/div/div[2]/div/div/span/strong').text)
     print("一共要爬取{}页".format(pages))
     for i in range(1, pages + 1):
+        data_list = []
         if transform.findn('SP', i):
             continue
         print("正在爬取第{}页".format(i))
@@ -161,9 +203,26 @@ def SPOJProblems() -> bool:
         divs = browser.find_elements(By.XPATH, '/html/body/div/div[2]/main/div/div/div/div[1]/div[2]/div')
         for div in divs:
             numb = div.find_element(By.XPATH, 'span[2]').text
+            title = div.find_element(By.XPATH, 'div[1]/a').text
+            temp = div.find_elements(By.XPATH, 'div[2]/div/a')
+            sour = []
+            for tem in temp:
+                sour.append(tem.text)
+            sour_str = '，'.join(sour)
+            browser.find_element(By.XPATH,'/html/body/div/div[2]/main/div/div/div/div[1]/div[1]/div/div[4]/span/a').click()
+            temp = div.find_elements(By.XPATH, 'div[2]/div/a')
+            algo = []
+            for tem in temp:
+                algo.append(tem.text)
+            algo_str = '，'.join(algo)
+            browser.find_element(By.XPATH,'/html/body/div/div[2]/main/div/div/div/div[1]/div[1]/div/div[4]/span/a').click()
+            difficulty = div.find_element(By.XPATH, 'div[3]/a/span').text
+            data = [numb, title, sour_str, algo_str, difficulty]
+            data_list.append(data)
             if not problem(str(numb)):
                 browser.quit()
                 return False
+        transform.write_excel(data_list)
         with open(r".\.done\SP.txt", "a") as e:
             e.write(str(i) + '\n')
         print("第{}页爬取完毕".format(i))
@@ -188,6 +247,7 @@ def CFProblems() -> bool:
         browser.find_element(By.XPATH, r'/html/body/div/div[2]/main/div/div/div/div[2]/div/div/span/strong').text)
     print("一共要爬取{}页".format(pages))
     for i in range(1, pages + 1):
+        data_list = []
         if transform.findn('CF', i):
             continue
         print("正在爬取第{}页".format(i))
@@ -204,9 +264,26 @@ def CFProblems() -> bool:
         divs = browser.find_elements(By.XPATH, '/html/body/div/div[2]/main/div/div/div/div[1]/div[2]/div')
         for div in divs:
             numb = div.find_element(By.XPATH, 'span[2]').text
+            title = div.find_element(By.XPATH, 'div[1]/a').text
+            temp = div.find_elements(By.XPATH, 'div[2]/div/a')
+            sour = []
+            for tem in temp:
+                sour.append(tem.text)
+            sour_str = '，'.join(sour)
+            browser.find_element(By.XPATH,'/html/body/div/div[2]/main/div/div/div/div[1]/div[1]/div/div[4]/span/a').click()
+            temp = div.find_elements(By.XPATH, 'div[2]/div/a')
+            algo = []
+            for tem in temp:
+                algo.append(tem.text)
+            algo_str = '，'.join(algo)
+            browser.find_element(By.XPATH,'/html/body/div/div[2]/main/div/div/div/div[1]/div[1]/div/div[4]/span/a').click()
+            difficulty = div.find_element(By.XPATH, 'div[3]/a/span').text
+            data = [numb, title, sour_str, algo_str, difficulty]
+            data_list.append(data)
             if not problem(str(numb)):
                 browser.quit()
                 return False
+        transform.write_excel(data_list)
         with open(r".\.done\CF.txt", "a") as e:
             e.write(str(i) + '\n')
         print("第{}页爬取完毕".format(i))
@@ -231,6 +308,7 @@ def BasicProblems() -> bool:
         browser.find_element(By.XPATH, r'/html/body/div/div[2]/main/div/div/div/div[2]/div/div/span/strong').text)
     print("一共要爬取{}页".format(pages))
     for i in range(1, pages + 1):
+        data_list = []
         if transform.findn('B', i):
             continue
         print("正在爬取第{}页".format(i))
@@ -247,9 +325,26 @@ def BasicProblems() -> bool:
         divs = browser.find_elements(By.XPATH, '/html/body/div/div[2]/main/div/div/div/div[1]/div[2]/div')
         for div in divs:
             numb = div.find_element(By.XPATH, 'span[2]').text
+            title = div.find_element(By.XPATH, 'div[1]/a').text
+            temp = div.find_elements(By.XPATH, 'div[2]/div/a')
+            sour = []
+            for tem in temp:
+                sour.append(tem.text)
+            sour_str = '，'.join(sour)
+            browser.find_element(By.XPATH,'/html/body/div/div[2]/main/div/div/div/div[1]/div[1]/div/div[4]/span/a').click()
+            temp = div.find_elements(By.XPATH, 'div[2]/div/a')
+            algo = []
+            for tem in temp:
+                algo.append(tem.text)
+            algo_str = '，'.join(algo)
+            browser.find_element(By.XPATH,'/html/body/div/div[2]/main/div/div/div/div[1]/div[1]/div/div[4]/span/a').click()
+            difficulty = div.find_element(By.XPATH, 'div[3]/a/span').text
+            data = [numb, title, sour_str, algo_str, difficulty]
+            data_list.append(data)
             if not problem(str(numb)):
                 browser.quit()
                 return False
+        transform.write_excel(data_list)
         with open(r".\.done\B.txt", "a") as e:
             e.write(str(i) + '\n')
         print("第{}页爬取完毕".format(i))
@@ -272,6 +367,7 @@ def mainProblems() -> bool:
     pages = int(browser.find_element(By.XPATH, r'/html/body/div/div[2]/main/div/div/div/div[2]/div/div/span/strong').text)
     print("一共要爬取{}页".format(pages))
     for i in range(1, pages+1):
+        data_list = []
         if transform.findn('P', i):
             continue
         print("正在爬取第{}页".format(i))
@@ -288,9 +384,26 @@ def mainProblems() -> bool:
         divs = browser.find_elements(By.XPATH, '/html/body/div/div[2]/main/div/div/div/div[1]/div[2]/div')
         for div in divs:
             numb = div.find_element(By.XPATH, 'span[2]').text
+            title = div.find_element(By.XPATH, 'div[1]/a').text
+            temp = div.find_elements(By.XPATH, 'div[2]/div/a')
+            sour = []
+            for tem in temp:
+                sour.append(tem.text)
+            sour_str = '，'.join(sour)
+            browser.find_element(By.XPATH,'/html/body/div/div[2]/main/div/div/div/div[1]/div[1]/div/div[4]/span/a').click()
+            temp = div.find_elements(By.XPATH, 'div[2]/div/a')
+            algo = []
+            for tem in temp:
+                algo.append(tem.text)
+            algo_str = '，'.join(algo)
+            browser.find_element(By.XPATH,'/html/body/div/div[2]/main/div/div/div/div[1]/div[1]/div/div[4]/span/a').click()
+            difficulty = div.find_element(By.XPATH, 'div[3]/a/span').text
+            data = [numb, title, sour_str, algo_str, difficulty]
+            data_list.append(data)
             if not problem(str(numb)):
                 browser.quit()
                 return False
+        transform.write_excel(data_list)
         with open(r".\.done\P.txt", "a") as e:
             e.write(str(i)+'\n')
         print("第{}页爬取完毕".format(i))

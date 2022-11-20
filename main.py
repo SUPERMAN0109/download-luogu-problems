@@ -1,3 +1,6 @@
+#!/usr/bin/env python3
+# -*- coding:utf-8 -*-
+
 import os
 import web_crawler
 
@@ -7,7 +10,6 @@ with open('path.txt', 'r') as path:
 if not os.path.exists(SavePath):
     os.makedirs(SavePath)
 os.chdir(SavePath)
-print(os.getcwd())
 
 
 def main():
