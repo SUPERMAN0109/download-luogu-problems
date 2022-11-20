@@ -12,3 +12,7 @@ path.txt
 
 #for python cache
 __pycache__/
+
+#for the problem data saving
+list.xlsx
+list.md
