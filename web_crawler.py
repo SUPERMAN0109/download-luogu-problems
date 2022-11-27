@@ -77,6 +77,11 @@ def Problems(problem_type) -> bool:
                 (By.XPATH, r"/html/body/div/div[2]/main/div/div/div/div[2]/div/div/span/strong"))
         )
         divs = browser.find_elements(By.XPATH, '/html/body/div/div[2]/main/div/div/div/div[1]/div[2]/div')
+        numb_list = []
+        title_list = []
+        sour_list = []
+        algo_list = []
+        difficulty_list = []
         for div in divs:
             numb = div.find_element(By.XPATH, 'span[2]').text
             title = div.find_element(By.XPATH, 'div[1]/a').text
@@ -85,19 +90,25 @@ def Problems(problem_type) -> bool:
             for tem in temp:
                 sour.append(tem.text)
             sour_str = '，'.join(sour)
-            browser.find_element(By.XPATH,'/html/body/div/div[2]/main/div/div/div/div[1]/div[1]/div/div[4]/span/a').click()
+            difficulty = div.find_element(By.XPATH, 'div[3]/a/span').text
+            numb_list.append(numb)
+            title_list.append(title)
+            sour_list.append(sour_str)
+            difficulty_list.append(difficulty)
+            if not problem(str(numb)):
+                browser.quit()
+                return False
+        browser.find_element(By.XPATH,'/html/body/div/div[2]/main/div/div/div/div[1]/div[1]/div/div[4]/span/a').click()
+        for div in divs:
             temp = div.find_elements(By.XPATH, 'div[2]/div/a')
             algo = []
             for tem in temp:
                 algo.append(tem.text)
             algo_str = '，'.join(algo)
-            browser.find_element(By.XPATH,'/html/body/div/div[2]/main/div/div/div/div[1]/div[1]/div/div[4]/span/a').click()
-            difficulty = div.find_element(By.XPATH, 'div[3]/a/span').text
-            data = [numb, title, sour_str, algo_str, difficulty]
+            algo_list.append(algo_str)
+        for numb, title, sour, algo, difficulty in zip(numb_list, title_list, sour_list, algo_list, difficulty_list):
+            data = [numb, title, sour, algo, difficulty]
             data_list.append(data)
-            if not problem(str(numb)):
-                browser.quit()
-                return False
         transform.write_excel(data_list)
         with open(".\\.done\\"+problem_type+'.txt', "a") as e:
             e.write(str(i)+'\n')
