@@ -1,18 +1,14 @@
 #for the list of problems that has been downloaded
 problems/
 
-#for the pycharm idea
-.idea/
-
 #for done pages
 .done/
-
-#for saving path
-path.txt
 
 #for python cache
 __pycache__/
 
 #for the problem data saving
 list.xlsx
-list.md
+
+#for the config file
+config.py
