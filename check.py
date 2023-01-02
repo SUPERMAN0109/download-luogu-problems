@@ -13,15 +13,48 @@ from selenium import webdriver
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as ec
 from selenium.webdriver.common.by import By
+import pymysql
+from pymysql.converters import escape_string
+from sqlalchemy import create_engine
+import pandas as pd
+from config import config
 
 
-with open('path.txt', 'r') as path:
-    SavePath = path.read()
-if not os.path.exists(SavePath):
-    os.makedirs(SavePath)
-os.chdir(SavePath)
 problem_list = ['P', 'B', 'CF', 'SP', 'AT', 'UVA']
 problem_list_name = ['主题库', '入门题库', 'CF题库', 'SPOJ题库', 'AtCoder题库', 'UVA题库']
+
+
+def write_mysql(data_list):
+    connection = pymysql.connect(host=config['HOST'], port=config['PORT'], user=config['USERNAME'],
+                                 password=config['PASSWORD'], charset='utf8', database='luogu_problems')
+    cursor = connection.cursor()
+    cursor.execute("USE luogu_problems")
+    connection.commit()
+    engine = create_engine(f"mysql+pymysql://{config['USERNAME']}:{config['PASSWORD']}"
+                           f"@{config['HOST']}:{config['PORT']}/luogu_problems?charset=utf8")
+    for data in data_list:
+        sql = f"""INSERT INTO luogu_problems.problems VALUE("{escape_string(data[0])}","{escape_string(data[1])}","{escape_string(data[4])}");"""
+        try:
+            cursor.execute(sql)
+        except pymysql.err.IntegrityError:
+            continue
+        connection.commit()
+        if len(data[2]) != 0:
+            for sour in data[2]:
+                sql = f"SELECT id FROM tags WHERE name='{sour}'"
+                df = pd.read_sql(sql, engine)
+                tag_id = df.iat[0, 0]
+                sql = f"INSERT INTO luogu_problems.tags_problems_link(problem_title, tag_id) VALUE('{data[0]}', '{int(tag_id)}');"
+                cursor.execute(sql)
+                connection.commit()
+        if len(data[3]) != 0:
+            for algo in data[3]:
+                sql = f"SELECT id FROM tags WHERE name='{algo}'"
+                df = pd.read_sql(sql, engine)
+                tag_id = df.iat[0, 0]
+                sql = f"INSERT INTO luogu_problems.tags_problems_link(problem_title, tag_id) VALUE('{data[0]}', '{tag_id}');"
+                cursor.execute(sql)
+                connection.commit()
 
 
 def set_width():
@@ -130,7 +163,8 @@ def problems(problem_type) -> bool:
     pages = int(browser.find_element(By.XPATH, r'/html/body/div/div[2]/main/div/div/div/div[2]/div/div/span/strong').text)
     print("一共要检查{}页".format(pages))
     for i in range(1, pages+1):
-        data_list = []
+        data_list1 = []
+        data_list2 = []
         print("正在检查第{}页".format(i))
         try:
             browser.get(url+str(i))
@@ -147,6 +181,8 @@ def problems(problem_type) -> bool:
         title_list = []
         sour_list = []
         algo_list = []
+        sour_str_list = []
+        algo_str_list = []
         difficulty_list = []
         flag = False
         for div in divs:
@@ -164,7 +200,8 @@ def problems(problem_type) -> bool:
             difficulty = div.find_element(By.XPATH, 'div[3]/a/span').text
             numb_list.append(numb)
             title_list.append(title)
-            sour_list.append(sour_str)
+            sour_str_list.append(sour_str)
+            sour_list.append(sour)
             difficulty_list.append(difficulty)
             if not problem(str(numb)):
                 browser.quit()
@@ -177,11 +214,18 @@ def problems(problem_type) -> bool:
                 for tem in temp:
                     algo.append(tem.text)
                 algo_str = '，'.join(algo)
-                algo_list.append(algo_str)
+                algo_str_list.append(algo_str)
+                algo_list.append(algo)
+            for numb, title, sour, algo, difficulty in zip(numb_list, title_list, sour_str_list, algo_str_list,
+                                                           difficulty_list):
+                data = [numb, title, sour, algo, difficulty]
+                data_list1.append(data)
             for numb, title, sour, algo, difficulty in zip(numb_list, title_list, sour_list, algo_list, difficulty_list):
                 data = [numb, title, sour, algo, difficulty]
-                data_list.append(data)
-        write_excel(data_list)
+                data_list2.append(data)
+            if config['USE_MYSQL']:
+                write_mysql(data_list2)
+            write_excel(data_list1)
         print("第{}页检查完毕".format(i))
     browser.quit()
     return True
