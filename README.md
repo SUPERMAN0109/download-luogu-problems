@@ -2,27 +2,46 @@
 
 在这里，可以批量下载洛谷的题目
 
-## 使用前的准备
+## 使用
 
-由于其中用到了bs4, openpyxl,urllib,selenium，如果没有需要进行安装，在cmd输入以下命令
-
-```commandline
++ 克隆项目
+`git clone https://gitee.com/SUPERMAN0109/download-luogu-problems.git`
++ 安装相关库
+```
 pip install bs4
 pip install openpyxl
 pip install urllib
 pip install selenium
+pip install pymysql
+pip install sqlalchemy
+pip install pandas
 ```
 
++ 安装谷歌浏览器驱动
 此外，如果没有安装谷歌浏览器的驱动，请前往<https://chromedriver.storage.googleapis.com/index.html>寻找自己的谷歌浏览器版本号下载相应的驱动下载，并吧其添加到系统环境变量
+  * 确定谷歌浏览器版本
+  在浏览器输入<chrome://settings/help>，如下图，即可知道版本号
+  ![Google Chrome版本](image.png)
 
-### 确定谷歌浏览器版本
-
-在浏览器输入<chrome://settings/help>，如下图，即可知道版本号
-![Google Chrome版本](image.png)
-
-## 使用方法
-
-先在main.py所在的目录中创建path.txt文件，里面写入保存题目到电脑的位置，然后运行main.py即可
+* 配置数据库
+  * 来到sql目录下，在命令行进入mysql
+  `mysql -u 'username' -p`
+  * 插入数据
+  ```
+  source table_create.sql;
+  source insert_tags.sql;
+  ```
+* 输入数据库信息
+在主目录创建config.py文件，按照以下格式输入数据库信息。
+```python
+config = {
+    'USE_MYSQL': True,      #是否使用数据库，是填True，否填False，如果填False，后面可不填
+    'HOST': 'localhost',
+    'PORT': 3306,
+    'USERNAME': 'root',
+    'PASSWORD': 'admin123456'
+}
+```
 
 ## 版本说明
 
@@ -41,6 +60,7 @@ v2.4 可以爬取题目信息并分别保存为xlsx工作表的形式
 v2.5 简化了一下程序  
 v2.6 改进了一下程序，加快运行速度  
 v2.7 添加了一个下载完之后更新的程序（用于检查是否有新的题目）  
+v3.0 可以将题目数据加载到MySQL数据库中
 
 ## 参考资料
 
