@@ -11,4 +11,4 @@ __pycache__/
 list.xlsx
 
 #for the config file
-config.py
+config.toml
