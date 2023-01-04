@@ -1,25 +1,27 @@
 # !/usr/bin/env python3
 # -*- coding:utf-8 -*-
 
-import re
 import os
+import re
+import urllib.error
+import urllib.request
+
 import bs4
 import openpyxl
-from openpyxl.utils import get_column_letter
-import urllib.request
-import urllib.error
-import selenium.common.exceptions
-from selenium import webdriver
-from selenium.webdriver.support.ui import WebDriverWait
-from selenium.webdriver.support import expected_conditions as ec
-from selenium.webdriver.common.by import By
-import pymysql
-from pymysql.converters import escape_string
-from sqlalchemy import create_engine
 import pandas as pd
-from config import config
+import pymysql
+import selenium.common.exceptions
+import toml
+from openpyxl.utils import get_column_letter
+from pymysql.converters import escape_string
+from selenium import webdriver
+from selenium.webdriver.common.by import By
+from selenium.webdriver.support import expected_conditions as ec
+from selenium.webdriver.support.ui import WebDriverWait
+from sqlalchemy import create_engine
 
 
+config = toml.load("config.toml")
 problem_list = ['P', 'B', 'CF', 'SP', 'AT', 'UVA']
 problem_list_name = ['主题库', '入门题库', 'CF题库', 'SPOJ题库', 'AtCoder题库', 'UVA题库']
 
@@ -33,7 +35,8 @@ def write_mysql(data_list):
     engine = create_engine(f"mysql+pymysql://{config['USERNAME']}:{config['PASSWORD']}"
                            f"@{config['HOST']}:{config['PORT']}/luogu_problems?charset=utf8")
     for data in data_list:
-        sql = f"""INSERT INTO luogu_problems.problems VALUE("{escape_string(data[0])}","{escape_string(data[1])}","{escape_string(data[4])}");"""
+        sql = f"INSERT INTO luogu_problems.problems " \
+              f"VALUE('{escape_string(data[0])}','{escape_string(data[1])}','{escape_string(data[4])}');"
         try:
             cursor.execute(sql)
         except pymysql.err.IntegrityError:
@@ -44,7 +47,8 @@ def write_mysql(data_list):
                 sql = f"SELECT id FROM tags WHERE name='{sour}'"
                 df = pd.read_sql(sql, engine)
                 tag_id = df.iat[0, 0]
-                sql = f"INSERT INTO luogu_problems.tags_problems_link(problem_title, tag_id) VALUE('{data[0]}', '{int(tag_id)}');"
+                sql = f"INSERT INTO luogu_problems.tags_problems_link(problem_title, tag_id) " \
+                      f"VALUE('{data[0]}', '{int(tag_id)}');"
                 cursor.execute(sql)
                 connection.commit()
         if len(data[3]) != 0:
@@ -52,7 +56,8 @@ def write_mysql(data_list):
                 sql = f"SELECT id FROM tags WHERE name='{algo}'"
                 df = pd.read_sql(sql, engine)
                 tag_id = df.iat[0, 0]
-                sql = f"INSERT INTO luogu_problems.tags_problems_link(problem_title, tag_id) VALUE('{data[0]}', '{tag_id}');"
+                sql = f"INSERT INTO luogu_problems.tags_problems_link(problem_title, tag_id) " \
+                      f"VALUE('{data[0]}', '{tag_id}');"
                 cursor.execute(sql)
                 connection.commit()
 
@@ -64,7 +69,7 @@ def set_width():
     for row in ws.rows:
         for cell in row:
             if cell.value:
-                cell_len = 0.7*len(re.findall('([\u4e00-\u9fa5])', str(cell.value))) + len(str(cell.value))
+                cell_len = 0.7 * len(re.findall('([\u4e00-\u9fa5])', str(cell.value))) + len(str(cell.value))
                 dims[cell.column] = max((dims.get(cell.column, 0), cell_len))
     for col, value in dims.items():
         ws.column_dimensions[get_column_letter(col)].width = value + 8
@@ -86,10 +91,10 @@ def write_excel(data_list):
     workbook.save(".\\list.xlsx")
 
 
-def findn(n, s) -> bool:
+def find_n(n, s) -> bool:
     with open(".\\.done\\" + n + '.txt', "r") as e:
         for i in e:
-            if str(i) == str(s)+'\n':
+            if str(i) == str(s) + '\n':
                 return True
         return False
 
@@ -106,8 +111,8 @@ def get_md(html):
 
 
 def save_data(data, filename):
-    cfilename = ".\\problems\\" + filename
-    file = open(cfilename, "w", encoding="utf-8")
+    new_file_name = ".\\problems\\" + filename
+    file = open(new_file_name, "w", encoding="utf-8")
     for d in data:
         file.writelines(d)
     file.close()
@@ -152,22 +157,24 @@ def problems(problem_type) -> bool:
     browser = webdriver.Chrome()
     url = r"https://www.luogu.com.cn/problem/list?type=" + problem_type + '&page='
     try:
-        browser.get(url+"1")
+        browser.get(url + "1")
     except selenium.common.exceptions.WebDriverException:
         print("网络不稳定，请稍后再试")
         browser.quit()
         return False
     WebDriverWait(browser, 1000).until(
-        ec.presence_of_all_elements_located((By.XPATH, r"/html/body/div/div[2]/main/div/div/div/div[2]/div/div/span/strong"))
+        ec.presence_of_all_elements_located(
+            (By.XPATH, r"/html/body/div/div[2]/main/div/div/div/div[2]/div/div/span/strong"))
     )
-    pages = int(browser.find_element(By.XPATH, r'/html/body/div/div[2]/main/div/div/div/div[2]/div/div/span/strong').text)
+    pages = int(
+        browser.find_element(By.XPATH, r'/html/body/div/div[2]/main/div/div/div/div[2]/div/div/span/strong').text)
     print("一共要检查{}页".format(pages))
-    for i in range(1, pages+1):
+    for i in range(1, pages + 1):
         data_list1 = []
         data_list2 = []
         print("正在检查第{}页".format(i))
         try:
-            browser.get(url+str(i))
+            browser.get(url + str(i))
         except selenium.common.exceptions.WebDriverException:
             print("网络不稳定，请稍后再试")
             browser.quit()
@@ -187,7 +194,7 @@ def problems(problem_type) -> bool:
         flag = False
         for div in divs:
             numb = div.find_element(By.XPATH, 'span[2]').text
-            if os.path.exists(".\\problems\\"+numb+'.md'):
+            if os.path.exists(".\\problems\\" + numb + '.md'):
                 continue
             else:
                 flag = True
@@ -207,7 +214,8 @@ def problems(problem_type) -> bool:
                 browser.quit()
                 return False
         if flag:
-            browser.find_element(By.XPATH, '/html/body/div/div[2]/main/div/div/div/div[1]/div[1]/div/div[4]/span/a').click()
+            browser.find_element(By.XPATH,
+                                 '/html/body/div/div[2]/main/div/div/div/div[1]/div[1]/div/div[4]/span/a').click()
             for div in divs:
                 temp = div.find_elements(By.XPATH, 'div[2]/div/a')
                 algo = []
@@ -220,7 +228,8 @@ def problems(problem_type) -> bool:
                                                            difficulty_list):
                 data = [numb, title, sour, algo, difficulty]
                 data_list1.append(data)
-            for numb, title, sour, algo, difficulty in zip(numb_list, title_list, sour_list, algo_list, difficulty_list):
+            for numb, title, sour, algo, difficulty in zip(numb_list, title_list, sour_list, algo_list,
+                                                           difficulty_list):
                 data = [numb, title, sour, algo, difficulty]
                 data_list2.append(data)
             if config['USE_MYSQL']:
@@ -234,10 +243,10 @@ def problems(problem_type) -> bool:
 def main():
     print("即将开始检查")
     for i, j in zip(problem_list, problem_list_name):
-        print("准备爬检查"+j)
+        print("准备爬检查" + j)
         if not problems(i):
             return
-        print(j+"检查完毕")
+        print(j + "检查完毕")
 
 
 if __name__ == '__main__':

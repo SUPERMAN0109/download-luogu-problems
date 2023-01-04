@@ -1,24 +1,26 @@
-#!/usr/bin/env python3
+# !/usr/bin/env python3
 # -*- coding:utf-8 -*-
 
-import re
 import os
+import re
+import urllib.error
+import urllib.request
+
 import bs4
 import openpyxl
-import urllib.request
-import urllib.error
-import selenium.common.exceptions
-from selenium import webdriver
-from selenium.webdriver.support.ui import WebDriverWait
-from selenium.webdriver.support import expected_conditions as ec
-from selenium.webdriver.common.by import By
-import pymysql
-from pymysql.converters import escape_string
-from sqlalchemy import create_engine
 import pandas as pd
-from config import config
+import pymysql
+import selenium.common.exceptions
+import toml
+from pymysql.converters import escape_string
+from selenium import webdriver
+from selenium.webdriver.common.by import By
+from selenium.webdriver.support import expected_conditions as ec
+from selenium.webdriver.support.ui import WebDriverWait
+from sqlalchemy import create_engine
 
 
+config = toml.load("config.toml")
 problem_list = ['P', 'B', 'CF', 'SP', 'AT', 'UVA']
 problem_list_name = ['主题库', '入门题库', 'CF题库', 'SPOJ题库', 'AtCoder题库', 'UVA题库']
 
@@ -32,7 +34,8 @@ def write_mysql(data_list):
     engine = create_engine(f"mysql+pymysql://{config['USERNAME']}:{config['PASSWORD']}"
                            f"@{config['HOST']}:{config['PORT']}/luogu_problems?charset=utf8")
     for data in data_list:
-        sql = f"""INSERT INTO luogu_problems.problems VALUE("{escape_string(data[0])}","{escape_string(data[1])}","{escape_string(data[4])}");"""
+        sql = f"INSERT INTO luogu_problems.problems " \
+              f"VALUE('{escape_string(data[0])}','{escape_string(data[1])}','{escape_string(data[4])}');"
         try:
             cursor.execute(sql)
         except pymysql.err.IntegrityError:
@@ -43,7 +46,8 @@ def write_mysql(data_list):
                 sql = f"SELECT id FROM tags WHERE name='{sour}'"
                 df = pd.read_sql(sql, engine)
                 tag_id = df.iat[0, 0]
-                sql = f"INSERT INTO luogu_problems.tags_problems_link(problem_title, tag_id) VALUE('{data[0]}', '{int(tag_id)}');"
+                sql = f"INSERT INTO luogu_problems.tags_problems_link(problem_title, tag_id) " \
+                      f"VALUE('{data[0]}', '{int(tag_id)}');"
                 cursor.execute(sql)
                 connection.commit()
         if len(data[3]) != 0:
@@ -51,7 +55,8 @@ def write_mysql(data_list):
                 sql = f"SELECT id FROM tags WHERE name='{algo}'"
                 df = pd.read_sql(sql, engine)
                 tag_id = df.iat[0, 0]
-                sql = f"INSERT INTO luogu_problems.tags_problems_link(problem_title, tag_id) VALUE('{data[0]}', '{tag_id}');"
+                sql = f"INSERT INTO luogu_problems.tags_problems_link(problem_title, tag_id) " \
+                      f"VALUE('{data[0]}', '{tag_id}');"
                 cursor.execute(sql)
                 connection.commit()
 
@@ -66,15 +71,15 @@ def write_excel(data_list):
         title = ['题号', '题目名称', '来源', '算法', '难度']
         sheet.append(title)
     sheet = workbook['题目']
-    for i in data_list:
-        sheet.append(i)
+    for data in data_list:
+        sheet.append(data)
     workbook.save(".\\list.xlsx")
 
 
-def findn(n, s) -> bool:
+def find_n(n, s) -> bool:
     with open(".\\.done\\" + n + '.txt', "r") as e:
         for i in e:
-            if str(i) == str(s)+'\n':
+            if str(i) == str(s) + '\n':
                 return True
         return False
 
@@ -91,8 +96,8 @@ def get_md(html):
 
 
 def save_data(data, filename):
-    cfilename = ".\\problems\\" + filename
-    file = open(cfilename, "w", encoding="utf-8")
+    new_file_name = ".\\problems\\" + filename
+    file = open(new_file_name, "w", encoding="utf-8")
     for d in data:
         file.writelines(d)
     file.close()
@@ -137,24 +142,26 @@ def problems(problem_type) -> bool:
     browser = webdriver.Chrome()
     url = r"https://www.luogu.com.cn/problem/list?type=" + problem_type + '&page='
     try:
-        browser.get(url+"1")
+        browser.get(url + "1")
     except selenium.common.exceptions.WebDriverException:
         print("网络不稳定，请稍后再试")
         browser.quit()
         return False
     WebDriverWait(browser, 1000).until(
-        ec.presence_of_all_elements_located((By.XPATH, r"/html/body/div/div[2]/main/div/div/div/div[2]/div/div/span/strong"))
+        ec.presence_of_all_elements_located(
+            (By.XPATH, r"/html/body/div/div[2]/main/div/div/div/div[2]/div/div/span/strong"))
     )
-    pages = int(browser.find_element(By.XPATH, r'/html/body/div/div[2]/main/div/div/div/div[2]/div/div/span/strong').text)
+    pages = int(
+        browser.find_element(By.XPATH, r'/html/body/div/div[2]/main/div/div/div/div[2]/div/div/span/strong').text)
     print("一共要爬取{}页".format(pages))
-    for i in range(1, pages+1):
+    for page in range(1, pages + 1):
         data_list1 = []
         data_list2 = []
-        if findn(problem_type, i):
+        if find_n(problem_type, page):
             continue
-        print("正在爬取第{}页".format(i))
+        print("正在爬取第{}页".format(page))
         try:
-            browser.get(url+str(i))
+            browser.get(url + str(page))
         except selenium.common.exceptions.WebDriverException:
             print("网络不稳定，请稍后再试")
             browser.quit()
@@ -207,9 +214,9 @@ def problems(problem_type) -> bool:
         if config['USE_MYSQL']:
             write_mysql(data_list2)
         write_excel(data_list1)
-        with open(".\\.done\\"+problem_type+'.txt', "a") as e:
-            e.write(str(i)+'\n')
-        print("第{}页爬取完毕".format(i))
+        with open(".\\.done\\" + problem_type + '.txt', "a") as e:
+            e.write(str(page) + '\n')
+        print("第{}页爬取完毕".format(page))
     browser.quit()
     return True
 
@@ -217,10 +224,10 @@ def problems(problem_type) -> bool:
 def main():
     print("即将开始爬取")
     for i, j in zip(problem_list, problem_list_name):
-        print("准备爬取"+j)
+        print("准备爬取" + j)
         if not problems(i):
             return
-        print(j+"爬取完毕")
+        print(j + "爬取完毕")
 
 
 if __name__ == '__main__':
@@ -229,7 +236,7 @@ if __name__ == '__main__':
     if not os.path.exists(r'.\.done'):
         os.mkdir(r'.\.done')
     for i in problem_list:
-        if not os.path.exists('.\\.done\\'+i+'.txt'):
-            a = open('.\\.done\\'+i+'.txt', "a")
+        if not os.path.exists('.\\.done\\' + i + '.txt'):
+            a = open('.\\.done\\' + i + '.txt', "a")
             a.close()
     main()
